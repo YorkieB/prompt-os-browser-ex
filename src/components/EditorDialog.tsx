@@ -29,6 +29,7 @@ interface EditorDialogProps {
 export function EditorDialog({ prompt, open, onClose, onSave }: EditorDialogProps) {
   const [title, setTitle] = useState('')
   const [category, setCategory] = useState<PromptCategory>('personal')
+  const [role, setRole] = useState('')
   const [content, setContent] = useState('')
   const [tags, setTags] = useState('')
 
@@ -36,11 +37,13 @@ export function EditorDialog({ prompt, open, onClose, onSave }: EditorDialogProp
     if (prompt) {
       setTitle(prompt.title)
       setCategory(prompt.category)
+      setRole(prompt.role)
       setContent(prompt.content)
       setTags(prompt.tags.join(', '))
     } else {
       setTitle('')
       setCategory('personal')
+      setRole('')
       setContent('')
       setTags('')
     }
@@ -54,6 +57,7 @@ export function EditorDialog({ prompt, open, onClose, onSave }: EditorDialogProp
       category,
       tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
       variables: [],
+      role,
       content,
       version: (prompt?.version || 0) + 1,
       createdAt: prompt?.createdAt || Date.now(),
@@ -67,7 +71,7 @@ export function EditorDialog({ prompt, open, onClose, onSave }: EditorDialogProp
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl">
             {prompt ? 'Edit Prompt' : 'Create New Prompt'}
@@ -104,6 +108,17 @@ export function EditorDialog({ prompt, open, onClose, onSave }: EditorDialogProp
           </div>
 
           <div>
+            <Label htmlFor="role">Role (starts with "You are a...")</Label>
+            <Textarea
+              id="role"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              placeholder="You are a senior software engineer with expertise in..."
+              rows={3}
+            />
+          </div>
+
+          <div>
             <Label htmlFor="tags">Tags (comma-separated)</Label>
             <Input
               id="tags"
@@ -130,7 +145,7 @@ export function EditorDialog({ prompt, open, onClose, onSave }: EditorDialogProp
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button onClick={handleSave} disabled={!title || !content}>
+          <Button onClick={handleSave} disabled={!title || !role || !content}>
             {prompt ? 'Save Changes' : 'Create Prompt'}
           </Button>
         </DialogFooter>

@@ -9,6 +9,7 @@ export interface Prompt {
   category: PromptCategory
   tags: string[]
   variables: string[]
+  role: string
   content: string
   version: number
   createdAt: number

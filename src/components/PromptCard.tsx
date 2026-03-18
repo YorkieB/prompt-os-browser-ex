@@ -8,7 +8,7 @@ import { motion } from 'framer-motion'
 interface PromptCardProps {
   prompt: Prompt
   onEdit: (prompt: Prompt) => void
-  onCopy: (content: string) => void
+  onCopy: () => void
   onEnhance: (prompt: Prompt) => void
   onDuplicate: (prompt: Prompt) => void
   onDelete: (id: string) => void
@@ -60,12 +60,16 @@ export function PromptCard({
           </Button>
         </div>
 
+        <p className="text-sm text-muted-foreground line-clamp-2 italic mb-2">
+          {prompt.role}
+        </p>
+
         <p className="text-sm text-muted-foreground line-clamp-3 font-mono mb-4">
           {prompt.content}
         </p>
 
         <div className="flex flex-wrap gap-2">
-          <Button size="sm" onClick={() => onCopy(prompt.content)}>
+          <Button size="sm" onClick={onCopy}>
             <Copy className="w-4 h-4" />
             Copy
           </Button>

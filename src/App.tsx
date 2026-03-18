@@ -53,6 +53,12 @@ function App() {
     toast.success('Prompt copied to clipboard!')
   }
 
+  const handleCopyWithRole = (prompt: Prompt) => {
+    const fullPrompt = `${prompt.role}\n\n${prompt.content}`
+    navigator.clipboard.writeText(fullPrompt)
+    toast.success('Prompt with role copied to clipboard!')
+  }
+
   const handleEnhance = (prompt: Prompt) => {
     setEnhancePrompt(prompt)
   }
@@ -153,7 +159,7 @@ function App() {
                 key={prompt.id}
                 prompt={prompt}
                 onEdit={handleEdit}
-                onCopy={handleCopy}
+                onCopy={() => handleCopyWithRole(prompt)}
                 onEnhance={handleEnhance}
                 onDuplicate={handleDuplicate}
                 onDelete={handleDelete}

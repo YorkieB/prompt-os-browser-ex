@@ -22,7 +22,7 @@ export async function enhancePrompt(options: EnhanceOptions): Promise<string> {
 
   const schema = getSchemaForMode(mode)
   
-  let enhancementPrompt = spark.llmPrompt`You are an expert prompt engineer. Your task is to enhance the following user prompt according to the strict requirements below.
+  const enhancementPrompt = (spark.llmPrompt as any)`You are an expert prompt engineer. Your task is to enhance the following user prompt according to the strict requirements below.
 
 ${GLOBAL_STRUCTURED_CONTRACT}
 
@@ -79,7 +79,7 @@ function getSchemaForMode(mode: EnhancementMode): string {
 }
 
 export async function extractImageAttributes(description: string): Promise<string> {
-  const extractionPrompt = spark.llmPrompt`Extract detailed visual attributes from this image description for use in AI image generation prompts.
+  const extractionPrompt = (spark.llmPrompt as any)`Extract detailed visual attributes from this image description for use in AI image generation prompts.
 
 Extract and format the following attributes:
 - Subject: Main focus/subject matter

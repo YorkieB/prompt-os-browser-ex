@@ -6,6 +6,7 @@ import { CategorySidebar } from '@/components/CategorySidebar'
 import { PromptCard } from '@/components/PromptCard'
 import { EnhanceDialog } from '@/components/EnhanceDialog'
 import { EditorDialog } from '@/components/EditorDialog'
+import { RoleFilter } from '@/components/RoleFilter'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { MagnifyingGlass, Plus } from '@phosphor-icons/react'
@@ -15,6 +16,7 @@ function App() {
   const [customPrompts, setCustomPrompts] = useKV<Prompt[]>('custom-prompts', [])
   const [favorites, setFavorites] = useKV<string[]>('favorites', [])
   const [selectedCategory, setSelectedCategory] = useState<PromptCategory | 'all'>('all')
+  const [selectedRole, setSelectedRole] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [enhancePrompt, setEnhancePrompt] = useState<Prompt | null>(null)
   const [editorPrompt, setEditorPrompt] = useState<Prompt | null>(null)
@@ -35,6 +37,10 @@ function App() {
       filtered = filtered.filter((p) => p.category === selectedCategory)
     }
 
+    if (selectedRole) {
+      filtered = filtered.filter((p) => p.role === selectedRole)
+    }
+
     if (searchQuery) {
       const query = searchQuery.toLowerCase()
       filtered = filtered.filter(
@@ -47,7 +53,7 @@ function App() {
     }
 
     return filtered
-  }, [allPrompts, selectedCategory, searchQuery])
+  }, [allPrompts, selectedCategory, selectedRole, searchQuery])
 
   const handleCopy = (content: string) => {
     navigator.clipboard.writeText(content)
@@ -142,13 +148,20 @@ function App() {
             </Button>
           </div>
 
-          <div className="relative">
-            <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-            <Input
-              placeholder="Search prompts by title, role, content, or tags..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+          <div className="flex items-center gap-4">
+            <div className="relative flex-1">
+              <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Input
+                placeholder="Search prompts by title, role, content, or tags..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <RoleFilter
+              prompts={allPrompts}
+              selectedRole={selectedRole}
+              onRoleChange={setSelectedRole}
             />
           </div>
         </header>

@@ -9,6 +9,8 @@ import {
 } from './schemas'
 import { applyCameraPhysics, formatCameraPhysics } from './cameraPhysics'
 
+const spark = window.spark
+
 interface EnhanceOptions {
   prompt: string
   mode: EnhancementMode

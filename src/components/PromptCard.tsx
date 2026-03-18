@@ -2,7 +2,7 @@ import { Prompt, PromptCategory } from '@/lib/types'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Copy, PencilSimple, Star, Sparkle, Trash, CopySimple } from '@phosphor-icons/react'
+import { Copy, PencilSimple, Star, Sparkle, Trash, CopySimple, ChartBar } from '@phosphor-icons/react'
 import { motion } from 'framer-motion'
 
 interface PromptCardProps {
@@ -10,6 +10,7 @@ interface PromptCardProps {
   onEdit: (prompt: Prompt) => void
   onCopy: () => void
   onEnhance: (prompt: Prompt) => void
+  onOptimize: (prompt: Prompt) => void
   onDuplicate: (prompt: Prompt) => void
   onDelete: (id: string) => void
   onToggleFavorite: (id: string) => void
@@ -20,6 +21,7 @@ export function PromptCard({
   onEdit,
   onCopy,
   onEnhance,
+  onOptimize,
   onDuplicate,
   onDelete,
   onToggleFavorite,
@@ -76,6 +78,10 @@ export function PromptCard({
           <Button size="sm" variant="secondary" onClick={() => onEnhance(prompt)}>
             <Sparkle className="w-4 h-4" />
             Enhance
+          </Button>
+          <Button size="sm" variant="secondary" onClick={() => onOptimize(prompt)}>
+            <ChartBar className="w-4 h-4" />
+            Optimize
           </Button>
           <Button size="sm" variant="outline" onClick={() => onEdit(prompt)}>
             <PencilSimple className="w-4 h-4" />

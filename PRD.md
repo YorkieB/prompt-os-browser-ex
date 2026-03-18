@@ -19,6 +19,13 @@ This is a full-featured prompt management system with multiple enhancement engin
 - **Progression**: Select category → Browse prompts → Preview content → Copy or enhance
 - **Success criteria**: All prompts load, categories filter correctly, copy works instantly
 
+### AI Prompt Optimizer
+- **Functionality**: Analyzes prompts across 5 dimensions (clarity, specificity, structure, completeness, effectiveness) and provides improvement suggestions
+- **Purpose**: Help users understand prompt quality and get AI-powered optimization recommendations
+- **Trigger**: User clicks "Optimize" button on any prompt
+- **Progression**: Select prompt → Click optimize → AI analyzes → View scores and feedback → Copy or apply optimized version
+- **Success criteria**: Analysis completes in <10s, provides actionable feedback, optimized version shows measurable improvements
+
 ### GPT-Powered Prompt Enhancer
 - **Functionality**: Takes any prompt and enhances it using GPT with mode-specific schemas
 - **Purpose**: Transform basic prompts into structured, comprehensive prompts

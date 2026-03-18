@@ -6,6 +6,7 @@ import { CategorySidebar } from '@/components/CategorySidebar'
 import { PromptCard } from '@/components/PromptCard'
 import { EnhanceDialog } from '@/components/EnhanceDialog'
 import { EditorDialog } from '@/components/EditorDialog'
+import { OptimizerDialog } from '@/components/OptimizerDialog'
 import { RoleFilter } from '@/components/RoleFilter'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -19,6 +20,7 @@ function App() {
   const [selectedRole, setSelectedRole] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [enhancePrompt, setEnhancePrompt] = useState<Prompt | null>(null)
+  const [optimizePrompt, setOptimizePrompt] = useState<Prompt | null>(null)
   const [editorPrompt, setEditorPrompt] = useState<Prompt | null>(null)
   const [isEditorOpen, setIsEditorOpen] = useState(false)
 
@@ -68,6 +70,10 @@ function App() {
 
   const handleEnhance = (prompt: Prompt) => {
     setEnhancePrompt(prompt)
+  }
+
+  const handleOptimize = (prompt: Prompt) => {
+    setOptimizePrompt(prompt)
   }
 
   const handleEdit = (prompt: Prompt) => {
@@ -189,6 +195,7 @@ function App() {
                 onEdit={handleEdit}
                 onCopy={() => handleCopyWithRole(prompt)}
                 onEnhance={handleEnhance}
+                onOptimize={handleOptimize}
                 onDuplicate={handleDuplicate}
                 onDelete={handleDelete}
                 onToggleFavorite={handleToggleFavorite}
@@ -211,6 +218,12 @@ function App() {
         prompt={enhancePrompt}
         open={enhancePrompt !== null}
         onClose={() => setEnhancePrompt(null)}
+      />
+
+      <OptimizerDialog
+        prompt={optimizePrompt}
+        open={optimizePrompt !== null}
+        onClose={() => setOptimizePrompt(null)}
       />
 
       <EditorDialog

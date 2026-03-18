@@ -41,6 +41,7 @@ function App() {
         (p) =>
           p.title.toLowerCase().includes(query) ||
           p.content.toLowerCase().includes(query) ||
+          p.role.toLowerCase().includes(query) ||
           p.tags.some((tag) => tag.toLowerCase().includes(query))
       )
     }
@@ -144,7 +145,7 @@ function App() {
           <div className="relative">
             <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
             <Input
-              placeholder="Search prompts by title, content, or tags..."
+              placeholder="Search prompts by title, role, content, or tags..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"

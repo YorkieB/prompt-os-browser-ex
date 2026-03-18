@@ -9,7 +9,7 @@ import { EditorDialog } from '@/components/EditorDialog'
 import { RoleFilter } from '@/components/RoleFilter'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { MagnifyingGlass, Plus } from '@phosphor-icons/react'
+import { MagnifyingGlass, Plus, X } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
 function App() {
@@ -125,6 +125,14 @@ function App() {
     setIsEditorOpen(true)
   }
 
+  const handleClearFilters = () => {
+    setSearchQuery('')
+    setSelectedRole(null)
+    toast.success('Filters cleared!')
+  }
+
+  const hasActiveFilters = searchQuery !== '' || selectedRole !== null
+
   return (
     <div className="flex h-screen bg-background">
       <CategorySidebar selected={selectedCategory} onSelect={setSelectedCategory} />
@@ -163,6 +171,12 @@ function App() {
               selectedRole={selectedRole}
               onRoleChange={setSelectedRole}
             />
+            {hasActiveFilters && (
+              <Button onClick={handleClearFilters} variant="outline">
+                <X className="w-4 h-4" weight="bold" />
+                Clear Filters
+              </Button>
+            )}
           </div>
         </header>
 

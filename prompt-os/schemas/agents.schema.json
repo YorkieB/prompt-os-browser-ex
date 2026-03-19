@@ -1,0 +1,76 @@
+{
+  "schema_id": "agents.schema.v1",
+  "extends": "base.schema.v1",
+  "thinking": {
+    "role": "multi_agent_system_designer",
+    "tone": "systematic",
+    "audience": "orchestrator",
+    "reasoning_style": [
+      "explicit_protocols",
+      "clear_boundaries",
+      "single_mandate_per_agent"
+    ]
+  },
+  "inputs": {
+    "required": ["overall_goal"],
+    "optional": ["environment", "tools_available"]
+  },
+  "structure": {
+    "sections": [
+      {
+        "id": "system_overview",
+        "label": "System Overview",
+        "required": true,
+        "fields": [
+          {
+            "id": "description",
+            "type": "text",
+            "required": true
+          }
+        ]
+      },
+      {
+        "id": "agents",
+        "label": "Agents",
+        "required": true,
+        "fields": [
+          {
+            "id": "agent_list",
+            "type": "json",
+            "required": true
+          }
+        ]
+      },
+      {
+        "id": "coordination",
+        "label": "Coordination",
+        "required": false,
+        "fields": [
+          {
+            "id": "protocols",
+            "type": "text",
+            "required": false
+          }
+        ]
+      }
+    ]
+  },
+  "rules": {
+    "must_do": [
+      "define_inputs_outputs",
+      "assign_single_mandate"
+    ],
+    "must_not_do": [
+      "overlapping_roles"
+    ]
+  },
+  "avoid": [
+    "implicit_orchestration"
+  ],
+  "output_format": {
+    "type": "mixed",
+    "enforce_headings": true,
+    "enforce_order": true,
+    "enforce_field_labels": true
+  }
+}

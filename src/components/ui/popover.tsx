@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils"
 
 function Popover({
   ...props
-}: ComponentProps<typeof PopoverPrimitive.Root>) {
+}: Readonly<ComponentProps<typeof PopoverPrimitive.Root>>) {
   return <PopoverPrimitive.Root data-slot="popover" {...props} />
 }
 

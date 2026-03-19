@@ -5,10 +5,17 @@
   * {
     @apply border-border;
   }
-  
+
   body {
     font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
   }
+}
+
+/* Side panel — fill the panel's full height */
+html, body, #root {
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
 }
 
 :root {

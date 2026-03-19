@@ -1,0 +1,70 @@
+{
+  "schema_id": "coding.schema.v1",
+  "extends": "base.schema.v1",
+  "thinking": {
+    "role": "senior_software_engineer",
+    "tone": "precise",
+    "audience": "developer",
+    "reasoning_style": [
+      "stepwise_logic",
+      "minimal_working_examples",
+      "explain_after_code"
+    ]
+  },
+  "inputs": {
+    "required": ["language", "goal"],
+    "optional": ["framework", "constraints"]
+  },
+  "structure": {
+    "sections": [
+      {
+        "id": "problem",
+        "label": "Problem Description",
+        "required": true,
+        "fields": [
+          {
+            "id": "context",
+            "type": "text",
+            "required": true
+          }
+        ]
+      },
+      {
+        "id": "solution",
+        "label": "Solution",
+        "required": true,
+        "fields": [
+          {
+            "id": "code",
+            "type": "code",
+            "required": true
+          },
+          {
+            "id": "explanation",
+            "type": "text",
+            "required": true
+          }
+        ]
+      }
+    ]
+  },
+  "rules": {
+    "must_do": [
+      "provide_runnable_code",
+      "explain_design_choices"
+    ],
+    "must_not_do": [
+      "mix_languages",
+      "omit_error_handling"
+    ]
+  },
+  "avoid": [
+    "pseudocode_unless_requested"
+  ],
+  "output_format": {
+    "type": "mixed",
+    "enforce_headings": true,
+    "enforce_order": true,
+    "enforce_field_labels": true
+  }
+}

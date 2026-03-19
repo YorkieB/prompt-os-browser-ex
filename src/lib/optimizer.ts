@@ -1,3 +1,5 @@
+import { callLLM } from './llm'
+
 export interface PromptAnalysis {
   overallScore: number
   clarity: {
@@ -98,7 +100,7 @@ ${roleSection}PROMPT: ${prompt}${categorySection}
 
 Provide a comprehensive analysis following the structure defined above.`
 
-  const result = await window.spark.llm(analysisPrompt, 'gpt-4o', true)
+  const result = await callLLM(analysisPrompt, true)
   
   try {
     const analysis = JSON.parse(result) as PromptAnalysis

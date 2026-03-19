@@ -1,0 +1,27 @@
+{
+  "schema_id": "base.schema.v1",
+  "thinking": {
+    "role": "",
+    "tone": "",
+    "audience": "",
+    "reasoning_style": []
+  },
+  "inputs": {
+    "required": [],
+    "optional": []
+  },
+  "structure": {
+    "sections": []
+  },
+  "rules": {
+    "must_do": [],
+    "must_not_do": []
+  },
+  "avoid": [],
+  "output_format": {
+    "type": "markdown",
+    "enforce_headings": true,
+    "enforce_order": true,
+    "enforce_field_labels": true
+  }
+}

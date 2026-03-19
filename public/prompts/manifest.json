@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "categories": [
+    { "id": "coding",     "label": "Coding",    "icon": "💻", "path": "coding/"     },
+    { "id": "image",      "label": "Image",     "icon": "🎨", "path": "image-video/" },
+    { "id": "video",      "label": "Video",     "icon": "🎥", "path": "image-video/" },
+    { "id": "research",   "label": "Research",  "icon": "🔍", "path": "research/"   },
+    { "id": "planning",   "label": "Planning",  "icon": "📋", "path": "planning/"   },
+    { "id": "agents",     "label": "Agents",    "icon": "🤖", "path": "agents/"     },
+    { "id": "personal",   "label": "Personal",  "icon": "👤", "path": "personal/"   }
+  ],
+  "prompts": [
+    { "id": "react-component",     "category": "coding",   "file": "coding/react-component.json"     },
+    { "id": "api-design",          "category": "coding",   "file": "coding/api-design.json"          },
+    { "id": "code-review",         "category": "coding",   "file": "coding/code-review.json"         },
+    { "id": "portrait-photo",      "category": "image",    "file": "image-video/portrait-photo.json" },
+    { "id": "product-shot",        "category": "image",    "file": "image-video/product-shot.json"   },
+    { "id": "cinematic-video",     "category": "video",    "file": "image-video/cinematic-video.json"},
+    { "id": "market-research",     "category": "research", "file": "research/market-research.json"   },
+    { "id": "literature-review",   "category": "research", "file": "research/literature-review.json" },
+    { "id": "project-plan",        "category": "planning", "file": "planning/project-plan.json"      },
+    { "id": "sprint-planning",     "category": "planning", "file": "planning/sprint-planning.json"   },
+    { "id": "customer-support",    "category": "agents",   "file": "agents/customer-support.json"    },
+    { "id": "research-agent",      "category": "agents",   "file": "agents/research-agent.json"      },
+    { "id": "daily-journal",       "category": "personal", "file": "personal/daily-journal.json"     }
+  ]
+}

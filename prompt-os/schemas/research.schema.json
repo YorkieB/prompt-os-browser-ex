@@ -1,0 +1,78 @@
+{
+  "schema_id": "research.schema.v1",
+  "extends": "base.schema.v1",
+  "thinking": {
+    "role": "expert_researcher",
+    "tone": "analytical",
+    "audience": "informed_non_expert",
+    "reasoning_style": [
+      "summarize_before_detail",
+      "separate_fact_from_inference",
+      "evidence_first"
+    ]
+  },
+  "inputs": {
+    "required": ["topic", "goal"],
+    "optional": ["scope", "timeframe"]
+  },
+  "structure": {
+    "sections": [
+      {
+        "id": "overview",
+        "label": "Overview",
+        "required": true,
+        "fields": [
+          {
+            "id": "summary",
+            "type": "text",
+            "required": true
+          }
+        ]
+      },
+      {
+        "id": "key_points",
+        "label": "Key Points",
+        "required": true,
+        "fields": [
+          {
+            "id": "bullets",
+            "type": "list",
+            "required": true
+          }
+        ]
+      },
+      {
+        "id": "evidence",
+        "label": "Evidence & Sources",
+        "required": true,
+        "fields": [
+          {
+            "id": "sources",
+            "type": "list",
+            "required": true
+          }
+        ]
+      }
+    ]
+  },
+  "rules": {
+    "must_do": [
+      "cite_sources",
+      "distinguish_fact_from_interpretation"
+    ],
+    "must_not_do": [
+      "invent_sources",
+      "mix_citations_and_commentary"
+    ]
+  },
+  "avoid": [
+    "vague_terms",
+    "unsupported_claims"
+  ],
+  "output_format": {
+    "type": "markdown",
+    "enforce_headings": true,
+    "enforce_order": true,
+    "enforce_field_labels": true
+  }
+}

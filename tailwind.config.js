@@ -19,9 +19,7 @@ const defaultTheme = {
   },
   extend: {
     screens: {
-      coarse: { raw: "(pointer: coarse)" },
-      fine: { raw: "(pointer: fine)" },
-      pwa: { raw: "(display-mode: standalone)" },
+      // Keep screen queries minimal to avoid invalid generated CSS.
     },
     colors: {
       neutral: {

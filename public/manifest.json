@@ -1,0 +1,48 @@
+{
+  "manifest_version": 3,
+  "name": "Nexus",
+  "version": "1.0.0",
+  "description": "Nexus — AI prompt engineering, research, and annotation tools for every page",
+  "permissions": ["storage", "activeTab", "tabs", "scripting", "clipboardWrite", "clipboardRead", "sidePanel"],
+  "host_permissions": [
+    "<all_urls>",
+    "https://inference.do-ai.run/*",
+    "https://api.frankfurter.app/*",
+    "https://chatgpt.com/*",
+    "https://chat.openai.com/*",
+    "https://claude.ai/*",
+    "https://gemini.google.com/*",
+    "https://bard.google.com/*",
+    "https://www.perplexity.ai/*",
+    "https://perplexity.ai/*",
+    "https://copilot.microsoft.com/*",
+    "https://www.bing.com/*"
+  ],
+  "icons": {
+    "16":  "icons/icon16.png",
+    "48":  "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "side_panel": {
+    "default_path": "index.html"
+  },
+  "action": {
+    "default_title": "Nexus",
+    "default_icon": {
+      "16":  "icons/icon16.png",
+      "48":  "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

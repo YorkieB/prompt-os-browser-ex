@@ -1,0 +1,63 @@
+{
+  "schema_id": "image.schema.v1",
+  "extends": "base.schema.v1",
+  "thinking": {
+    "role": "art_director",
+    "tone": "descriptive",
+    "audience": "image_model",
+    "reasoning_style": [
+      "concrete_visual_language",
+      "avoid_conflicting_modifiers"
+    ]
+  },
+  "inputs": {
+    "required": ["subject"],
+    "optional": ["style", "lighting", "camera"]
+  },
+  "structure": {
+    "sections": [
+      {
+        "id": "main_prompt",
+        "label": "Main Prompt",
+        "required": true,
+        "fields": [
+          {
+            "id": "description",
+            "type": "text",
+            "required": true
+          }
+        ]
+      },
+      {
+        "id": "negative",
+        "label": "Negative Prompt",
+        "required": false,
+        "fields": [
+          {
+            "id": "avoid",
+            "type": "list",
+            "required": false
+          }
+        ]
+      }
+    ]
+  },
+  "rules": {
+    "must_do": [
+      "describe_subject_clearly"
+    ],
+    "must_not_do": [
+      "use_vague_terms",
+      "mix_styles"
+    ]
+  },
+  "avoid": [
+    "overloaded_modifiers"
+  ],
+  "output_format": {
+    "type": "markdown",
+    "enforce_headings": true,
+    "enforce_order": true,
+    "enforce_field_labels": true
+  }
+}

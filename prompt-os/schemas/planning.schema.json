@@ -1,0 +1,75 @@
+{
+  "schema_id": "planning.schema.v1",
+  "extends": "base.schema.v1",
+  "thinking": {
+    "role": "project_planner",
+    "tone": "structured",
+    "audience": "practitioner",
+    "reasoning_style": [
+      "ordered_steps",
+      "dependency_first",
+      "risk_awareness"
+    ]
+  },
+  "inputs": {
+    "required": ["goal"],
+    "optional": ["timeline", "resources"]
+  },
+  "structure": {
+    "sections": [
+      {
+        "id": "goal",
+        "label": "Goal",
+        "required": true,
+        "fields": [
+          {
+            "id": "goal_text",
+            "type": "text",
+            "required": true
+          }
+        ]
+      },
+      {
+        "id": "steps",
+        "label": "Steps",
+        "required": true,
+        "fields": [
+          {
+            "id": "tasks",
+            "type": "list",
+            "required": true
+          }
+        ]
+      },
+      {
+        "id": "risks",
+        "label": "Risks",
+        "required": false,
+        "fields": [
+          {
+            "id": "risk_items",
+            "type": "list",
+            "required": false
+          }
+        ]
+      }
+    ]
+  },
+  "rules": {
+    "must_do": [
+      "order_tasks_logically"
+    ],
+    "must_not_do": [
+      "mix_goals_and_tasks"
+    ]
+  },
+  "avoid": [
+    "missing_dependencies"
+  ],
+  "output_format": {
+    "type": "markdown",
+    "enforce_headings": true,
+    "enforce_order": true,
+    "enforce_field_labels": true
+  }
+}

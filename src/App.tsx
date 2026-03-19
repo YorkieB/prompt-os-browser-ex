@@ -1,239 +1,206 @@
 import { useState, useMemo } from 'react'
-import { useKV } from '@github/spark/hooks'
+import { useStorage } from '@/hooks/useStorage'
 import { Prompt, PromptCategory } from '@/lib/types'
 import { defaultPrompts } from '@/lib/defaultPrompts'
-import { CategorySidebar } from '@/components/CategorySidebar'
-import { PromptCard } from '@/components/PromptCard'
+import { SavedPromptsTab } from '@/components/tabs/SavedPromptsTab'
+import { CraftTab } from '@/components/tabs/CraftTab'
+import { ExportChatTab } from '@/components/tabs/ExportChatTab'
+import { FeaturesTab } from '@/components/tabs/FeaturesTab'
 import { EnhanceDialog } from '@/components/EnhanceDialog'
 import { EditorDialog } from '@/components/EditorDialog'
 import { OptimizerDialog } from '@/components/OptimizerDialog'
-import { RoleFilter } from '@/components/RoleFilter'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { MagnifyingGlass, Plus, X } from '@phosphor-icons/react'
-import { toast } from 'sonner'
+import { ApiKeySettings } from '@/components/ApiKeySettings'
+import { Bookmark, Sparkles, Share2, Zap, FlaskConical, Stethoscope, ListTodo, FileText } from 'lucide-react'
+import { ResearchTab } from '@/components/tabs/ResearchTab'
+import { DiagnosticsTab } from '@/components/tabs/DiagnosticsTab'
+import { PlanningSuiteTab } from '@/components/tabs/PlanningSuiteTab'
+import { InstructionalContractTab } from '@/components/tabs/InstructionalContractTab'
+
+type Tab = 'saved' | 'craft' | 'export' | 'research' | 'planning' | 'contract' | 'diagnostics' | 'features'
+
+const TABS: Array<{ id: Tab; label: string; icon: React.ElementType }> = [
+  { id: 'saved',       label: 'Saved',       icon: Bookmark     },
+  { id: 'craft',       label: 'Craft',       icon: Sparkles     },
+  { id: 'export',      label: 'Export',      icon: Share2       },
+  { id: 'research',    label: 'Research',    icon: FlaskConical },
+  { id: 'planning',    label: 'Plan',        icon: ListTodo     },
+  { id: 'contract',    label: 'Contract',    icon: FileText     },
+  { id: 'diagnostics', label: 'Diagnostics', icon: Stethoscope  },
+  { id: 'features',    label: 'Features',    icon: Zap          },
+]
 
 function App() {
-  const [customPrompts, setCustomPrompts] = useKV<Prompt[]>('custom-prompts', [])
-  const [favorites, setFavorites] = useKV<string[]>('favorites', [])
-  const [selectedCategory, setSelectedCategory] = useState<PromptCategory | 'all'>('all')
-  const [selectedRole, setSelectedRole] = useState<string | null>(null)
-  const [searchQuery, setSearchQuery] = useState('')
+  const [activeTab, setActiveTab] = useState<Tab>('saved')
+  const [customPrompts, setCustomPrompts] = useStorage<Prompt[]>('custom-prompts', [])
+  const [favorites, setFavorites] = useStorage<string[]>('favorites', [])
+  const [trashedIds, setTrashedIds] = useStorage<string[]>('trashed-prompt-ids', [])
   const [enhancePrompt, setEnhancePrompt] = useState<Prompt | null>(null)
   const [optimizePrompt, setOptimizePrompt] = useState<Prompt | null>(null)
   const [editorPrompt, setEditorPrompt] = useState<Prompt | null>(null)
   const [isEditorOpen, setIsEditorOpen] = useState(false)
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
 
   const allPrompts = useMemo(() => {
+    const trashed = trashedIds || []
     const combined = [...defaultPrompts, ...(customPrompts || [])]
-    return combined.map((p) => ({
-      ...p,
-      isFavorite: (favorites || []).includes(p.id),
-    }))
-  }, [customPrompts, favorites])
+    return combined
+      .filter((p) => !trashed.includes(p.id))
+      .map((p) => ({ ...p, isFavorite: (favorites || []).includes(p.id) }))
+  }, [customPrompts, favorites, trashedIds])
 
-  const filteredPrompts = useMemo(() => {
-    let filtered = allPrompts
+  const trashedPrompts = useMemo(() => {
+    const trashed = trashedIds || []
+    const combined = [...defaultPrompts, ...(customPrompts || [])]
+    return combined.filter((p) => trashed.includes(p.id)).map((p) => ({ ...p, isFavorite: false }))
+  }, [customPrompts, trashedIds])
 
-    if (selectedCategory !== 'all') {
-      filtered = filtered.filter((p) => p.category === selectedCategory)
-    }
-
-    if (selectedRole) {
-      filtered = filtered.filter((p) => p.role === selectedRole)
-    }
-
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase()
-      filtered = filtered.filter(
-        (p) =>
-          p.title.toLowerCase().includes(query) ||
-          p.content.toLowerCase().includes(query) ||
-          p.role.toLowerCase().includes(query) ||
-          p.tags.some((tag) => tag.toLowerCase().includes(query))
-      )
-    }
-
-    return filtered
-  }, [allPrompts, selectedCategory, selectedRole, searchQuery])
-
-  const handleCopy = (content: string) => {
-    navigator.clipboard.writeText(content)
-    toast.success('Prompt copied to clipboard!')
-  }
-
-  const handleCopyWithRole = (prompt: Prompt) => {
-    const fullPrompt = `${prompt.role}\n\n${prompt.content}`
-    navigator.clipboard.writeText(fullPrompt)
-    toast.success('Prompt with role copied to clipboard!')
-  }
-
-  const handleEnhance = (prompt: Prompt) => {
-    setEnhancePrompt(prompt)
-  }
-
-  const handleOptimize = (prompt: Prompt) => {
-    setOptimizePrompt(prompt)
-  }
-
-  const handleEdit = (prompt: Prompt) => {
-    setEditorPrompt(prompt)
-    setIsEditorOpen(true)
-  }
-
-  const handleDuplicate = (prompt: Prompt) => {
-    const duplicated: Prompt = {
-      ...prompt,
+  const handleAddCustom = (text: string) => {
+    const prompt: Prompt = {
       id: `custom-${Date.now()}`,
-      title: `${prompt.title} (Copy)`,
+      title: text.slice(0, 50),
+      icon: '',
+      content: text,
+      role: '',
+      category: 'personal' as PromptCategory,
+      tags: [],
+      variables: [],
       isCustom: true,
+      version: 1,
       createdAt: Date.now(),
       updatedAt: Date.now(),
-      version: 1,
     }
-    setCustomPrompts((current) => [...(current || []), duplicated])
-    toast.success('Prompt duplicated!')
+    setCustomPrompts((cur) => [...(cur || []), prompt])
   }
 
-  const handleDelete = (id: string) => {
-    setCustomPrompts((current) => (current || []).filter((p) => p.id !== id))
-    toast.success('Prompt deleted!')
+  const handleSaveGenerated = (prompt: Prompt) => {
+    setCustomPrompts((cur) => [...(cur || []), prompt])
+  }
+
+  const handleTrash = (id: string) => {
+    setTrashedIds((cur) => [...(cur || []), id])
+  }
+
+  const handleRestore = (id: string) => {
+    setTrashedIds((cur) => (cur || []).filter((t) => t !== id))
+  }
+
+  const handlePermanentDelete = (id: string) => {
+    setCustomPrompts((cur) => (cur || []).filter((p) => p.id !== id))
+    setTrashedIds((cur) => (cur || []).filter((t) => t !== id))
+  }
+
+  const handleEmptyTrash = () => {
+    const trashed = trashedIds || []
+    setCustomPrompts((cur) => (cur || []).filter((p) => !trashed.includes(p.id)))
+    setTrashedIds([])
   }
 
   const handleToggleFavorite = (id: string) => {
-    setFavorites((current) => {
-      const favs = current || []
-      if (favs.includes(id)) {
-        return favs.filter((f) => f !== id)
-      } else {
-        return [...favs, id]
-      }
+    setFavorites((cur) => {
+      const favs = cur || []
+      return favs.includes(id) ? favs.filter((f) => f !== id) : [...favs, id]
     })
   }
 
-  const handleSavePrompt = (prompt: Prompt) => {
-    setCustomPrompts((current) => {
-      const prompts = current || []
-      const existingIndex = prompts.findIndex((p) => p.id === prompt.id)
-      if (existingIndex >= 0) {
+  const handleDuplicate = (id: string) => {
+    const original = allPrompts.find((p) => p.id === id)
+    if (!original) return
+    const copy: Prompt = {
+      ...original,
+      id: `custom-${Date.now()}`,
+      title: `${original.title} (copy)`,
+      isCustom: true,
+      isFavorite: false,
+      version: 1,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    }
+    setCustomPrompts((cur) => [...(cur || []), copy])
+  }
+
+  const handleSaveEdit = (prompt: Prompt) => {
+    setCustomPrompts((cur) => {
+      const prompts = cur || []
+      const idx = prompts.findIndex((p) => p.id === prompt.id)
+      if (idx >= 0) {
         const updated = [...prompts]
-        updated[existingIndex] = prompt
+        updated[idx] = prompt
         return updated
-      } else {
-        return [...prompts, prompt]
       }
+      return [...prompts, prompt]
     })
-    toast.success(editorPrompt ? 'Prompt updated!' : 'Prompt created!')
   }
-
-  const handleCreateNew = () => {
-    setEditorPrompt(null)
-    setIsEditorOpen(true)
-  }
-
-  const handleClearFilters = () => {
-    setSearchQuery('')
-    setSelectedRole(null)
-    toast.success('Filters cleared!')
-  }
-
-  const hasActiveFilters = searchQuery !== '' || selectedRole !== null
 
   return (
-    <div className="flex h-screen bg-background">
-      <CategorySidebar selected={selectedCategory} onSelect={setSelectedCategory} />
-
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="border-b border-border bg-card p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">
-                {selectedCategory === 'all'
-                  ? 'All Prompts'
-                  : selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)}
-              </h1>
-              <p className="text-muted-foreground mt-1">
-                {filteredPrompts.length} prompt{filteredPrompts.length !== 1 ? 's' : ''} available
-              </p>
-            </div>
-            <Button onClick={handleCreateNew} size="lg">
-              <Plus className="w-5 h-5" weight="bold" />
-              Create Prompt
-            </Button>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <div className="relative flex-1">
-              <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-              <Input
-                placeholder="Search prompts by title, role, content, or tags..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <RoleFilter
-              prompts={allPrompts}
-              selectedRole={selectedRole}
-              onRoleChange={setSelectedRole}
-            />
-            {hasActiveFilters && (
-              <Button onClick={handleClearFilters} variant="outline">
-                <X className="w-4 h-4" weight="bold" />
-                Clear Filters
-              </Button>
-            )}
-          </div>
-        </header>
-
-        <main className="flex-1 overflow-y-auto p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredPrompts.map((prompt) => (
-              <PromptCard
-                key={prompt.id}
-                prompt={prompt}
-                onEdit={handleEdit}
-                onCopy={() => handleCopyWithRole(prompt)}
-                onEnhance={handleEnhance}
-                onOptimize={handleOptimize}
-                onDuplicate={handleDuplicate}
-                onDelete={handleDelete}
-                onToggleFavorite={handleToggleFavorite}
-              />
-            ))}
-          </div>
-
-          {filteredPrompts.length === 0 && (
-            <div className="text-center py-16">
-              <p className="text-muted-foreground text-lg">No prompts found</p>
-              <p className="text-muted-foreground text-sm mt-2">
-                Try adjusting your filters or create a new prompt
-              </p>
-            </div>
-          )}
-        </main>
+    <div className="flex flex-col h-screen bg-slate-100 overflow-hidden">
+      {/* Tab content */}
+      <div className="flex-1 overflow-hidden">
+        {activeTab === 'saved' && (
+          <SavedPromptsTab
+            prompts={allPrompts}
+            trashedPrompts={trashedPrompts}
+            onAddCustom={handleAddCustom}
+            onTrash={handleTrash}
+            onRestore={handleRestore}
+            onPermanentDelete={handlePermanentDelete}
+            onEmptyTrash={handleEmptyTrash}
+            onToggleFavorite={handleToggleFavorite}
+            onEnhance={setEnhancePrompt}
+            onOptimize={setOptimizePrompt}
+            onDuplicate={handleDuplicate}
+            onEdit={(p) => { setEditorPrompt(p); setIsEditorOpen(true) }}
+          />
+        )}
+        {activeTab === 'craft' && (
+          <CraftTab onSaveGenerated={handleSaveGenerated} />
+        )}
+        {activeTab === 'export' && <ExportChatTab />}
+        {activeTab === 'research' && <ResearchTab />}
+        {activeTab === 'planning' && <PlanningSuiteTab />}
+        {activeTab === 'contract' && <InstructionalContractTab />}
+        {activeTab === 'diagnostics' && <DiagnosticsTab />}
+        {activeTab === 'features' && (
+          <FeaturesTab onOpenSettings={() => setIsSettingsOpen(true)} />
+        )}
       </div>
 
+      {/* Bottom navigation */}
+      <nav className="bg-white border-t border-slate-200 flex shrink-0">
+        {TABS.map((tab) => {
+          const Icon = tab.icon
+          const isActive = activeTab === tab.id
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex-1 flex flex-col items-center py-2.5 gap-0.5 transition-colors ${
+                isActive ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600'
+              }`}
+            >
+              <Icon className={`w-5 h-5 ${isActive ? 'fill-blue-100' : ''}`} />
+              <span className="text-[10px] font-medium leading-tight text-center">{tab.label}</span>
+            </button>
+          )
+        })}
+      </nav>
+
+      {/* Dialogs */}
+      <ApiKeySettings open={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
       <EnhanceDialog
         prompt={enhancePrompt}
         open={enhancePrompt !== null}
         onClose={() => setEnhancePrompt(null)}
       />
-
       <OptimizerDialog
         prompt={optimizePrompt}
         open={optimizePrompt !== null}
         onClose={() => setOptimizePrompt(null)}
       />
-
       <EditorDialog
         prompt={editorPrompt}
         open={isEditorOpen}
-        onClose={() => {
-          setIsEditorOpen(false)
-          setEditorPrompt(null)
-        }}
-        onSave={handleSavePrompt}
+        onClose={() => { setIsEditorOpen(false); setEditorPrompt(null) }}
+        onSave={handleSaveEdit}
       />
     </div>
   )

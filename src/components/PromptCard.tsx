@@ -1,8 +1,8 @@
-import { Prompt, PromptCategory } from '@/lib/types'
+import { Prompt } from '@/lib/types'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Copy, PencilSimple, Star, Sparkle, Trash, CopySimple, ChartBar } from '@phosphor-icons/react'
+import { Star, Copy, Pencil, ClipboardCopy, BarChart2, Sparkles, Trash2 } from 'lucide-react'
 import { motion } from 'framer-motion'
 
 interface PromptCardProps {
@@ -25,78 +25,76 @@ export function PromptCard({
   onDuplicate,
   onDelete,
   onToggleFavorite,
-}: PromptCardProps) {
+}: Readonly<PromptCardProps>) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.2 }}
-    >
-      <Card className="p-6 hover:shadow-lg transition-all duration-200 hover:border-accent/50 group">
-        <div className="flex items-start justify-between gap-4 mb-3">
-          <div className="flex-1">
-            <h3 className="font-semibold text-lg mb-1 flex items-center gap-2">
-              {prompt.title}
-              {prompt.isFavorite && (
-                <Star weight="fill" className="w-4 h-4 text-accent" />
-              )}
-            </h3>
-            <div className="flex flex-wrap gap-2 mt-2">
-              <Badge variant="secondary" className="text-xs">
-                {prompt.category}
-              </Badge>
-              {prompt.tags.slice(0, 3).map((tag) => (
-                <Badge key={tag} variant="outline" className="text-xs">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-          </div>
+    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.15 }}>
+      <Card className="p-3 hover:shadow-md transition-all duration-150 hover:border-accent/50">
+        {/* Title row */}
+        <div className="flex items-start justify-between gap-2 mb-1.5">
+          <h3 className="font-semibold text-sm leading-tight flex items-center gap-1.5 flex-1 min-w-0">
+            <span className="truncate">{prompt.title}</span>
+            {prompt.isFavorite && <Star className="w-3 h-3 text-accent fill-accent shrink-0" />}
+          </h3>
           <Button
-            size="sm"
+            size="icon"
             variant="ghost"
+            className="h-6 w-6 shrink-0 -mt-0.5 -mr-0.5"
             onClick={() => onToggleFavorite(prompt.id)}
-            className="shrink-0"
           >
-            <Star weight={prompt.isFavorite ? 'fill' : 'regular'} className="w-5 h-5" />
+            <Star className={`w-3.5 h-3.5 ${prompt.isFavorite ? 'fill-accent text-accent' : ''}`} />
           </Button>
         </div>
 
-        <p className="text-sm text-muted-foreground line-clamp-2 italic mb-2">
+        {/* Tags */}
+        <div className="flex flex-wrap gap-1 mb-2">
+          <Badge variant="secondary" className="text-xs px-1.5 py-0">
+            {prompt.category}
+          </Badge>
+          {prompt.tags.slice(0, 2).map((tag) => (
+            <Badge key={tag} variant="outline" className="text-xs px-1.5 py-0">
+              {tag}
+            </Badge>
+          ))}
+        </div>
+
+        {/* Role preview */}
+        <p className="text-xs text-muted-foreground line-clamp-1 italic mb-1">
           {prompt.role}
         </p>
 
-        <p className="text-sm text-muted-foreground line-clamp-3 font-mono mb-4">
+        {/* Content preview */}
+        <p className="text-xs text-muted-foreground line-clamp-2 font-mono mb-2.5">
           {prompt.content}
         </p>
 
-        <div className="flex flex-wrap gap-2">
-          <Button size="sm" onClick={onCopy}>
-            <Copy className="w-4 h-4" />
+        {/* Action buttons */}
+        <div className="flex flex-wrap gap-1">
+          <Button size="sm" className="h-7 text-xs px-2" onClick={onCopy}>
+            <Copy className="w-3 h-3" />
             Copy
           </Button>
-          <Button size="sm" variant="secondary" onClick={() => onEnhance(prompt)}>
-            <Sparkle className="w-4 h-4" />
+          <Button size="sm" variant="secondary" className="h-7 text-xs px-2" onClick={() => onEnhance(prompt)}>
+            <Sparkles className="w-3 h-3" />
             Enhance
           </Button>
-          <Button size="sm" variant="secondary" onClick={() => onOptimize(prompt)}>
-            <ChartBar className="w-4 h-4" />
+          <Button size="sm" variant="secondary" className="h-7 text-xs px-2" onClick={() => onOptimize(prompt)}>
+            <BarChart2 className="w-3 h-3" />
             Optimize
           </Button>
-          <Button size="sm" variant="outline" onClick={() => onEdit(prompt)}>
-            <PencilSimple className="w-4 h-4" />
+          <Button size="sm" variant="outline" className="h-7 w-7 p-0" onClick={() => onEdit(prompt)}>
+            <Pencil className="w-3 h-3" />
           </Button>
-          <Button size="sm" variant="outline" onClick={() => onDuplicate(prompt)}>
-            <CopySimple className="w-4 h-4" />
+          <Button size="sm" variant="outline" className="h-7 w-7 p-0" onClick={() => onDuplicate(prompt)}>
+            <ClipboardCopy className="w-3 h-3" />
           </Button>
           {prompt.isCustom && (
             <Button
               size="sm"
               variant="outline"
+              className="h-7 w-7 p-0 text-destructive hover:bg-destructive hover:text-destructive-foreground"
               onClick={() => onDelete(prompt.id)}
-              className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
             >
-              <Trash className="w-4 h-4" />
+              <Trash2 className="w-3 h-3" />
             </Button>
           )}
         </div>

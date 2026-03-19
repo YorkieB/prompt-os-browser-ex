@@ -10,10 +10,10 @@ import {
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { enhancePrompt } from '@/lib/enhancer'
-import { Copy, Sparkle } from '@phosphor-icons/react'
+import { CopyIcon, SparkleIcon } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
 interface EnhanceDialogProps {
@@ -22,7 +22,7 @@ interface EnhanceDialogProps {
   onClose: () => void
 }
 
-export function EnhanceDialog({ prompt, open, onClose }: EnhanceDialogProps) {
+export function EnhanceDialog({ prompt, open, onClose }: Readonly<EnhanceDialogProps>) {
   const [mode, setMode] = useState<EnhancementMode>('coding')
   const [referenceImage, setReferenceImage] = useState('')
   const [enhancedResult, setEnhancedResult] = useState<string>('')
@@ -55,7 +55,7 @@ export function EnhanceDialog({ prompt, open, onClose }: EnhanceDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh]">
+      <DialogContent aria-describedby={undefined} className="max-w-4xl max-h-[90vh]">
         <DialogHeader>
           <DialogTitle className="text-2xl">Enhance Prompt</DialogTitle>
           <DialogDescription>
@@ -102,7 +102,7 @@ export function EnhanceDialog({ prompt, open, onClose }: EnhanceDialogProps) {
           )}
 
           <Button onClick={handleEnhance} disabled={isEnhancing} className="w-full" size="lg">
-            <Sparkle className="w-5 h-5" />
+            <SparkleIcon className="w-5 h-5" />
             {isEnhancing ? 'Enhancing...' : 'Enhance Prompt'}
           </Button>
 
@@ -111,7 +111,7 @@ export function EnhanceDialog({ prompt, open, onClose }: EnhanceDialogProps) {
               <div className="flex items-center justify-between mb-2">
                 <Label className="text-sm font-medium">Enhanced Result</Label>
                 <Button size="sm" onClick={handleCopy} variant="outline">
-                  <Copy className="w-4 h-4" />
+                  <CopyIcon className="w-4 h-4" />
                   Copy
                 </Button>
               </div>

@@ -14,8 +14,18 @@ export interface Prompt {
   version: number
   createdAt: number
   updatedAt: number
+  description?: string
   isFavorite?: boolean
   isCustom?: boolean
+}
+
+export interface ExportedChat {
+  id: string
+  title: string
+  source: 'chatgpt' | 'claude' | 'gemini' | 'perplexity' | 'copilot' | 'unknown'
+  messages: { role: string; text: string }[]
+  exportedAt: number
+  isTrashed?: boolean
 }
 
 export interface EnhancedPrompt {

@@ -1,23 +1,32 @@
-# ✨ Welcome to Your Spark Template!
-You've just launched your brand-new Spark Template Codespace — everything’s fired up and ready for you to explore, build, and create with Spark!
+# Nexus (browser extension)
 
-This template is your blank canvas. It comes with a minimal setup to help you get started quickly with Spark development.
+Chrome **Manifest V3** side-panel extension: prompt tooling, research/planning tabs, and **Nexus** (instructional contracts for **Cursor**).
 
-🚀 What's Inside?
-- A clean, minimal Spark environment
-- Pre-configured for local development
-- Ready to scale with your ideas
-  
-🧠 What Can You Do?
+## User guide
 
-Right now, this is just a starting point — the perfect place to begin building and testing your Spark applications.
+→ **[docs/USER_MANUAL.md](./docs/USER_MANUAL.md)** — install, tabs overview, **Contract** / Nexus flow, optional Cursor bridge, troubleshooting.
 
-🧹 Just Exploring?
-No problem! If you were just checking things out and don’t need to keep this code:
+## Developer quick start
 
-- Simply delete your Spark.
-- Everything will be cleaned up — no traces left behind.
+```bash
+npm install
+npm run lint    # ESLint (+ SonarJS rules)
+npm run test    # Vitest
+npm run build   # output → dist/
+```
 
-📄 License For Spark Template Resources 
+Load **`dist/`** as an **unpacked** extension in `chrome://extensions` (Developer mode).
 
-The Spark Template files and resources from GitHub are licensed under the terms of the MIT license, Copyright GitHub, Inc.
+## Nexus (spec + implementation)
+
+Schemas, templates, and Cursor worker docs live under **`prompt-os/`**. Start with **[prompt-os/README.md](./prompt-os/README.md)**.
+
+## Environment (optional)
+
+For the **Send to Cursor** HTTP flow, copy **`.env.example`** to **`.env.local`** and set `VITE_PROMPT_OS_CURSOR_BRIDGE_URL`. See **[prompt-os/docs/cursor-bridge.md](./prompt-os/docs/cursor-bridge.md)**.
+
+---
+
+## Spark template attribution
+
+This repository began from the GitHub **Spark Template** (MIT). Nexus-specific features (Nexus, tabs, etc.) are layered on top; see **`docs/USER_MANUAL.md`** and **`prompt-os/`** for product behavior.

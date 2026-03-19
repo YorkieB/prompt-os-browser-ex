@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexus – Chat Input Component</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:          #f5f4ef;
+    --surface:     #ffffff;
+    --border:      #e5e3dc;
+    --border-focus:#7c3aed;
+    --text:        #1a1a18;
+    --muted:       #9a9890;
+    --accent:      #7c3aed;
+    --accent-hover:#6d28d9;
+    --accent-soft: #f3f0ff;
+    --green:       #10b981;
+    --radius-lg:   18px;
+    --radius-md:   12px;
+    --radius-sm:   8px;
+    --shadow-sm:   0 1px 4px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+    --shadow-md:   0 8px 32px rgba(0,0,0,.12), 0 2px 8px rgba(0,0,0,.06);
+    --shadow-xl:   0 24px 64px rgba(0,0,0,.18), 0 4px 16px rgba(0,0,0,.08);
+    --transition:  all .15s ease;
+  }
+
+  html, body {
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* ── Page chrome ── */
+  .page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 40px 16px 32px;
+    gap: 12px;
+  }
+
+  .demo-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    color: var(--muted);
+    text-transform: uppercase;
+    align-self: center;
+    margin-bottom: 4px;
+  }
+
+  /* ── Chat input bar ── */
+  .chat-bar {
+    width: 100%;
+    max-width: 740px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    transition: var(--transition);
+  }
+  .chat-bar:focus-within {
+    border-color: #d1c9f0;
+    box-shadow: 0 0 0 4px rgba(124,58,237,.08), var(--shadow-sm);
+  }
+
+  .chat-textarea {
+    display: block;
+    width: 100%;
+    min-height: 52px;
+    max-height: 180px;
+    padding: 16px 20px 8px;
+    font-family: inherit;
+    font-size: 15px;
+    color: var(--text);
+    background: transparent;
+    border: none;
+    outline: none;
+    resize: none;
+    line-height: 1.5;
+    overflow-y: auto;
+    scrollbar-width: thin;
+  }
+  .chat-textarea::placeholder { color: var(--muted); }
+
+  .chat-toolbar {
+    display: flex;
+    align-items: center;
+    padding: 6px 10px 10px;
+    gap: 6px;
+  }
+
+  .toolbar-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    padding: 0 8px;
+    transition: var(--transition);
+    font-family: inherit;
+    white-space: nowrap;
+  }
+  .toolbar-btn:hover { background: #f0edf8; color: var(--accent); }
+
+  .toolbar-btn.circle {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    color: var(--muted);
+  }
+  .toolbar-btn.circle:hover { border-color: #c4b5fd; background: var(--accent-soft); color: var(--accent); }
+
+  .toolbar-spacer { flex: 1; }
+
+  /* Nexus trigger button */
+  .prompt-os-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    height: 30px;
+    padding: 0 10px;
+    background: var(--accent-soft);
+    border: 1.5px solid #ddd6fe;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    cursor: pointer;
+    transition: var(--transition);
+    font-family: inherit;
+  }
+  .prompt-os-btn:hover {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(124,58,237,.3);
+  }
+
+  .divider-v {
+    width: 1px;
+    height: 18px;
+    background: var(--border);
+    flex-shrink: 0;
+  }
+
+  .send-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #e5e3dc;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+    /* #888 on #e5e3dc fails WCAG AA; --text (~7:1) passes */
+    color: var(--text);
+  }
+  .send-btn:hover { background: var(--accent); color: #fff; }
+
+  /* ── Modal overlay (native <dialog>) ── */
+  dialog.overlay {
+    position: fixed;
+    inset: 0;
+    margin: 0;
+    padding: 0 12px 140px;
+    border: none;
+    max-width: 100vw;
+    max-height: 100vh;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    background: transparent;
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 9999;
+  }
+  dialog.overlay[open] {
+    display: flex;
+  }
+  dialog.overlay::backdrop {
+    background: rgba(15, 12, 30, 0.45);
+    backdrop-filter: blur(6px);
+  }
+
+  /* ── Modal panel ── */
+  .modal {
+    width: 100%;
+    max-width: 740px;
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    overflow: hidden;
+    transform: translateY(20px) scale(.98);
+    transition: transform .22s cubic-bezier(.34,1.56,.64,1), opacity .2s ease;
+    opacity: 0;
+    border: 1px solid var(--border);
+  }
+  dialog.overlay[open] .modal {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+
+  /* Modal header */
+  .modal-header {
+    display: flex;
+    align-items: center;
+    padding: 14px 16px 12px;
+    border-bottom: 1px solid #f3f1ea;
+    gap: 10px;
+  }
+  .modal-header-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: var(--radius-sm);
+    background: var(--accent-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+  .modal-title { font-size: 14px; font-weight: 700; color: var(--text); flex: 1; }
+  .modal-subtitle { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+  .modal-close {
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-sm);
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .modal-close:hover { background: #f3f1ea; color: var(--text); }
+
+  /* Modal body */
+  .modal-body {
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    max-height: 70vh;
+    overflow-y: auto;
+    scrollbar-width: thin;
+  }
+
+  /* Description input */
+  .field-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .07em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .desc-textarea {
+    width: 100%;
+    min-height: 64px;
+    max-height: 120px;
+    padding: 10px 12px;
+    font-family: inherit;
+    font-size: 13.5px;
+    color: var(--text);
+    background: #fafaf8;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-md);
+    outline: none;
+    resize: none;
+    transition: var(--transition);
+    line-height: 1.5;
+  }
+  .desc-textarea::placeholder { color: #bbb9b2; }
+  .desc-textarea:focus { border-color: var(--border-focus); background: #fff; box-shadow: 0 0 0 3px rgba(124,58,237,.09); }
+
+  /* Category chips */
+  .chips-row {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+    flex-wrap: nowrap;
+  }
+  .chips-row::-webkit-scrollbar { display: none; }
+
+  .chip {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 11px;
+    border-radius: 999px;
+    border: 1.5px solid var(--border);
+    background: #fff;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    color: #6b7280;
+    transition: var(--transition);
+    font-family: inherit;
+    flex-shrink: 0;
+  }
+  .chip:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+  .chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .chip.active-image { background: #7c3aed; color: #fff; border-color: #7c3aed; }
+  .chip.active-video  { background: #db2777; color: #fff; border-color: #db2777; }
+  .chip.active-coding { background: #0369a1; color: #fff; border-color: #0369a1; }
+
+  /* Options grid */
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  /* Pill group (tone) */
+  .pill-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  .pill {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1.5px solid var(--border);
+    background: #fff;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    color: #6b7280;
+    transition: var(--transition);
+    font-family: inherit;
+  }
+  .pill:hover { border-color: #374151; color: #374151; }
+  .pill.active { background: #111827; color: #fff; border-color: #111827; }
+
+  /* Segmented control */
+  .seg {
+    display: flex;
+    background: #f3f1ea;
+    border-radius: 999px;
+    padding: 3px;
+    gap: 2px;
+  }
+  .seg-btn {
+    flex: 1;
+    padding: 5px 0;
+    border: none;
+    background: transparent;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--muted);
+    transition: var(--transition);
+    font-family: inherit;
+    text-align: center;
+  }
+  .seg-btn.active { background: #fff; color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+  .seg-btn:hover:not(.active) { color: var(--text); }
+
+  /* Generate button */
+  .generate-btn {
+    width: 100%;
+    height: 40px;
+    border-radius: var(--radius-md);
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    transition: var(--transition);
+    font-family: inherit;
+  }
+  .generate-btn:hover:not(:disabled) { background: var(--accent-hover); box-shadow: 0 4px 14px rgba(124,58,237,.35); transform: translateY(-1px); }
+  .generate-btn:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+  .generate-btn .spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Result area */
+  .result-area {
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    animation: fadeIn .2s ease;
+  }
+  .result-area.visible { display: flex; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  .result-box {
+    background: #fafaf8;
+    border: 1.5px solid #e8e5f0;
+    border-radius: var(--radius-md);
+    padding: 12px;
+    font-size: 13px;
+    line-height: 1.65;
+    color: var(--text);
+    max-height: 200px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    scrollbar-width: thin;
+    outline: none;
+  }
+  .result-box[contenteditable]:focus { border-color: var(--border-focus); box-shadow: 0 0 0 3px rgba(124,58,237,.09); }
+
+  .result-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .result-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .07em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  .result-meta {
+    font-size: 10px;
+    color: #bbb;
+  }
+
+  .result-actions {
+    display: flex;
+    gap: 7px;
+  }
+
+  .action-btn {
+    flex: 1;
+    height: 36px;
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border);
+    background: #fff;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    transition: var(--transition);
+    color: #374151;
+    font-family: inherit;
+  }
+  .action-btn:hover { border-color: #d1d5db; background: #f9fafb; }
+  .action-btn.primary {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+  .action-btn.primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); box-shadow: 0 4px 12px rgba(124,58,237,.3); }
+
+  /* API key row (collapsible) */
+  .api-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    background: #fafaf8;
+    border-top: 1px solid #f3f1ea;
+  }
+  .api-label { font-size: 11px; color: var(--muted); white-space: nowrap; flex-shrink: 0; }
+  .api-input {
+    flex: 1;
+    height: 28px;
+    padding: 0 8px;
+    font-size: 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    outline: none;
+    font-family: 'SF Mono', monospace;
+    background: #fff;
+    color: var(--text);
+    transition: var(--transition);
+  }
+  .api-input:focus { border-color: var(--border-focus); box-shadow: 0 0 0 2px rgba(124,58,237,.08); }
+  .api-save-btn {
+    height: 28px;
+    padding: 0 10px;
+    font-size: 11px;
+    font-weight: 600;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-family: inherit;
+    transition: var(--transition);
+    white-space: nowrap;
+  }
+  .api-save-btn:hover { background: var(--accent-hover); }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(60px);
+    background: #111827;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 9px 18px;
+    border-radius: 999px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.2);
+    z-index: 99999;
+    transition: transform .25s cubic-bezier(.34,1.56,.64,1), opacity .2s;
+    opacity: 0;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+  /* Responsive */
+  @media (max-width: 540px) {
+    .options-grid { grid-template-columns: 1fr; }
+    dialog.overlay { padding-bottom: 110px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <span class="demo-label">Nexus · Chat Input Component</span>
+
+  <!-- ── Chat input bar ── -->
+  <div class="chat-bar" id="chatBar">
+    <textarea
+      id="chatInput"
+      class="chat-textarea"
+      placeholder="Type @ for connectors and sources"
+      rows="2"
+    ></textarea>
+    <div class="chat-toolbar">
+      <!-- Plus button -->
+      <button class="toolbar-btn circle" title="Attach">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+
+      <div class="toolbar-spacer"></div>
+
+      <!-- Nexus trigger -->
+      <button class="prompt-os-btn" id="openModal" title="Open Prompt Generator">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+        Nexus
+      </button>
+
+      <div class="divider-v"></div>
+
+      <!-- Model pill -->
+      <button class="toolbar-btn" style="font-size:12px; font-weight:600; color:#444;">
+        Model
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+
+      <!-- Mic -->
+      <button class="toolbar-btn circle" title="Voice">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3M8 22h8"/></svg>
+      </button>
+
+      <!-- Send -->
+      <button class="send-btn" title="Send">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2 15 22l-4-9-9-4 20-7z"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal overlay (native dialog for a11y / focus trap) ── -->
+<dialog class="overlay" id="overlay" aria-label="Prompt Generator">
+  <div class="modal" id="modal">
+
+    <!-- Header -->
+    <div class="modal-header">
+      <div class="modal-header-icon">✨</div>
+      <div style="flex:1">
+        <div class="modal-title">Prompt Generator</div>
+        <div class="modal-subtitle">Craft a structured prompt, then insert it into your chat</div>
+      </div>
+      <button class="modal-close" id="closeModal" aria-label="Close">✕</button>
+    </div>
+
+    <!-- Body -->
+    <div class="modal-body">
+
+      <!-- Description -->
+      <div>
+        <div class="field-label">What do you need?</div>
+        <textarea
+          id="descInput"
+          class="desc-textarea"
+          placeholder="e.g. A React component that fetches data from an API with loading and error states…"
+        ></textarea>
+      </div>
+
+      <!-- Category -->
+      <div>
+        <div class="field-label">Category</div>
+        <div class="chips-row" id="catChips">
+          <button class="chip active" data-cat="General">General</button>
+          <button class="chip" data-cat="Coding">💻 Coding</button>
+          <button class="chip" data-cat="Image">🎨 Image</button>
+          <button class="chip" data-cat="Video">🎥 Video</button>
+          <button class="chip" data-cat="Research">🔍 Research</button>
+          <button class="chip" data-cat="Planning">📋 Planning</button>
+          <button class="chip" data-cat="Agents">🤖 Agents</button>
+          <button class="chip" data-cat="Marketing">📣 Marketing</button>
+          <button class="chip" data-cat="Personal">👤 Personal</button>
+        </div>
+      </div>
+
+      <!-- Tone -->
+      <div>
+        <div class="field-label">Tone</div>
+        <div class="pill-group" id="toneGroup">
+          <button class="pill active" data-tone="formal">😊 Formal</button>
+          <button class="pill" data-tone="casual">😄 Casual</button>
+          <button class="pill" data-tone="persuasive">🎯 Persuasive</button>
+          <button class="pill" data-tone="enthusiastic">🤩 Enthusiastic</button>
+          <button class="pill" data-tone="analytical">🔍 Analytical</button>
+          <button class="pill" data-tone="creative">🎨 Creative</button>
+        </div>
+      </div>
+
+      <!-- Length + Level -->
+      <div class="options-grid">
+        <div>
+          <div class="field-label">Length</div>
+          <div class="seg" id="lengthSeg">
+            <button class="seg-btn" data-val="short">Short</button>
+            <button class="seg-btn active" data-val="medium">Medium</button>
+            <button class="seg-btn" data-val="long">Long</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Complexity</div>
+          <div class="seg" id="levelSeg">
+            <button class="seg-btn" data-val="beginner">Basic</button>
+            <button class="seg-btn active" data-val="intermediate">Mid</button>
+            <button class="seg-btn" data-val="advanced">Expert</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Generate -->
+      <button class="generate-btn" id="generateBtn">
+        <svg id="genIcon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+        <span id="genLabel">Generate Prompt</span>
+      </button>
+
+      <!-- Result -->
+      <div class="result-area" id="resultArea">
+        <div class="result-header">
+          <span class="result-label">Generated Prompt</span>
+          <span class="result-meta" id="resultMeta"></span>
+        </div>
+        <div
+          id="resultBox"
+          class="result-box"
+          contenteditable="true"
+          spellcheck="false"
+          aria-label="Generated prompt — edit before inserting"
+        ></div>
+        <div class="result-actions">
+          <button class="action-btn" id="copyBtn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy
+          </button>
+          <button class="action-btn" id="regenBtn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+            Regenerate
+          </button>
+          <button class="action-btn primary" id="insertBtn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+            Insert into chat
+          </button>
+        </div>
+      </div>
+
+    </div><!-- /modal-body -->
+
+    <!-- API key row -->
+    <div class="api-row">
+      <span class="api-label">🔑 API Key:</span>
+      <input
+        type="password"
+        id="apiKeyInput"
+        class="api-input"
+        placeholder="dop_v1_… (DigitalOcean model access key)"
+      />
+      <button class="api-save-btn" id="apiSaveBtn">Save</button>
+    </div>
+
+  </div><!-- /modal -->
+</dialog>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── State ────────────────────────────────────────────────────────────────────
+const state = {
+  category: 'General',
+  tone: 'formal',
+  length: 'medium',
+  level: 'intermediate',
+}
+
+/** Maps chip label to the extra “active-*” class (Sonar: avoid nested ternary). */
+const CHIP_ACTIVE_CLASS = {
+  Image: 'active-image',
+  Video: 'active-video',
+  Coding: 'active-coding',
+}
+
+const DO_BASE_URL = 'https://inference.do-ai.run/v1'
+const API_KEY_KEY = 'do-api-key'
+const MODEL_KEY   = 'do-model'
+const DEFAULT_MODEL = 'llama3.3-70b-instruct'
+
+// ── Elements ─────────────────────────────────────────────────────────────────
+const overlay     = document.getElementById('overlay')
+const openBtn     = document.getElementById('openModal')
+const closeBtn    = document.getElementById('closeModal')
+const descInput   = document.getElementById('descInput')
+const generateBtn = document.getElementById('generateBtn')
+const genLabel    = document.getElementById('genLabel')
+const resultArea  = document.getElementById('resultArea')
+const resultBox   = document.getElementById('resultBox')
+const resultMeta  = document.getElementById('resultMeta')
+const copyBtn     = document.getElementById('copyBtn')
+const regenBtn    = document.getElementById('regenBtn')
+const insertBtn   = document.getElementById('insertBtn')
+const chatInput   = document.getElementById('chatInput')
+const apiKeyInput = document.getElementById('apiKeyInput')
+const apiSaveBtn  = document.getElementById('apiSaveBtn')
+const toastEl     = document.getElementById('toast')
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+apiKeyInput.value = localStorage.getItem(API_KEY_KEY) || ''
+
+// ── Modal open/close (HTMLDialogElement) ─────────────────────────────────
+function openModal() {
+  if (!overlay.open) overlay.showModal()
+  setTimeout(() => descInput.focus(), 220)
+}
+function closeModal() {
+  if (overlay.open) overlay.close()
+}
+
+openBtn.addEventListener('click', openModal)
+closeBtn.addEventListener('click', closeModal)
+/* Clicks on the dialog surface (outside .modal) dismiss; ::backdrop is separate */
+overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal() })
+
+// ── Category chips ────────────────────────────────────────────────────────────
+document.getElementById('catChips').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-cat]')
+  if (!btn) return
+  document.querySelectorAll('#catChips .chip').forEach(b => b.classList.remove('active','active-image','active-video','active-coding'))
+  const cat = btn.dataset.cat
+  state.category = cat
+  const cls = CHIP_ACTIVE_CLASS[cat] ?? 'active'
+  btn.classList.add(cls)
+})
+
+// ── Tone pills ────────────────────────────────────────────────────────────────
+document.getElementById('toneGroup').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-tone]')
+  if (!btn) return
+  document.querySelectorAll('#toneGroup .pill').forEach(b => b.classList.remove('active'))
+  btn.classList.add('active')
+  state.tone = btn.dataset.tone
+})
+
+// ── Segmented controls ────────────────────────────────────────────────────────
+function bindSeg(id, key) {
+  document.getElementById(id).addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-val]')
+    if (!btn) return
+    document.querySelectorAll(`#${id} .seg-btn`).forEach(b => b.classList.remove('active'))
+    btn.classList.add('active')
+    state[key] = btn.dataset.val
+  })
+}
+bindSeg('lengthSeg', 'length')
+bindSeg('levelSeg', 'level')
+
+// ── API key save ──────────────────────────────────────────────────────────────
+apiSaveBtn.addEventListener('click', () => {
+  const key = apiKeyInput.value.trim()
+  if (!key) { showToast('⚠️ Enter an API key first'); return }
+  localStorage.setItem(API_KEY_KEY, key)
+  showToast('✓ API key saved')
+})
+
+// ── Generate ──────────────────────────────────────────────────────────────────
+async function generate() {
+  const desc = descInput.value.trim()
+  if (!desc) { showToast('⚠️ Describe what you need first'); descInput.focus(); return }
+
+  const apiKey = localStorage.getItem(API_KEY_KEY)
+  if (!apiKey) { showToast('⚠️ Add your API key below'); apiKeyInput.focus(); return }
+
+  setLoading(true)
+  resultArea.classList.remove('visible')
+
+  try {
+    const systemPrompt = buildSystemPrompt()
+    const model = localStorage.getItem(MODEL_KEY) || DEFAULT_MODEL
+
+    const res = await fetch(`${DO_BASE_URL}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user',   content: desc },
+        ],
+        max_completion_tokens: 1024,
+      }),
+    })
+
+    if (!res.ok) {
+      let msg = `API error ${res.status}`
+      try { const err = await res.json(); msg = err?.error?.message || msg } catch {}
+      throw new Error(msg)
+    }
+
+    const data = await res.json()
+    const generated = data.choices[0].message.content.trim()
+    const tokens = data.usage ? `${data.usage.total_tokens} tokens` : ''
+
+    resultBox.textContent = generated
+    resultMeta.textContent = tokens
+    resultArea.classList.add('visible')
+    resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+
+  } catch (err) {
+    showToast('✕ ' + (err.message || 'Generation failed'))
+  } finally {
+    setLoading(false)
+  }
+}
+
+function buildSystemPrompt() {
+  const cat = state.category
+  const isImageVideo = cat === 'Image' || cat === 'Video'
+  const isCoding     = cat === 'Coding'
+
+  if (isImageVideo) {
+    return `You are an expert AI ${cat.toLowerCase()} prompt engineer.
+Generate a single, ready-to-use ${cat.toLowerCase()} generation prompt.
+
+Structure your output with these labelled sections:
+## Enhanced Prompt
+## Minimal Prompt
+## Negative Prompt
+## Camera / Technical Settings
+## Model Variants (Midjourney · DALL-E · Stable Diffusion)
+
+Tone: ${state.tone} · Complexity: ${state.level}
+Output ONLY the prompt sections above. No preamble, no explanation.`
+  }
+
+  if (isCoding) {
+    return `You are an expert coding prompt engineer.
+Generate a single, ready-to-use coding prompt.
+
+Structure your output with these labelled sections:
+## Task
+## Inputs
+## Output Requirements
+## Constraints
+## Code Implementation Notes
+## Testing Guidance
+
+Tone: ${state.tone} · Length: ${state.length} · Complexity: ${state.level}
+Output ONLY the prompt sections above. No preamble.`
+  }
+
+  return `You are an expert prompt engineer.
+Generate a single, high-quality, ready-to-use prompt for the ${cat} category.
+
+Requirements:
+- Tone: ${state.tone}
+- Length: ${state.length}
+- Complexity: ${state.level}
+
+Output ONLY the prompt itself — clear, structured, and immediately usable.
+No labels, no preamble, no explanation. Just the prompt.`
+}
+
+function setLoading(on) {
+  generateBtn.disabled = on
+  regenBtn.disabled    = on
+  if (on) {
+    generateBtn.innerHTML = `<div class="spinner"></div><span>Generating…</span>`
+  } else {
+    generateBtn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg><span>Generate Prompt</span>`
+  }
+}
+
+generateBtn.addEventListener('click', generate)
+regenBtn.addEventListener('click', generate)
+descInput.addEventListener('keydown', (e) => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') generate()
+})
+
+// ── Copy ──────────────────────────────────────────────────────────────────────
+copyBtn.addEventListener('click', () => {
+  const text = resultBox.innerText || resultBox.textContent
+  navigator.clipboard.writeText(text).then(() => {
+    copyBtn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Copied!`
+    setTimeout(() => {
+      copyBtn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy`
+    }, 2000)
+  })
+})
+
+// ── Insert ────────────────────────────────────────────────────────────────────
+insertBtn.addEventListener('click', () => {
+  const text = resultBox.innerText || resultBox.textContent
+  if (!text) return
+  chatInput.value = text
+  chatInput.dispatchEvent(new Event('input', { bubbles: true }))
+  chatInput.focus()
+  closeModal()
+  showToast('✓ Prompt inserted into chat')
+  // Auto-resize textarea
+  chatInput.style.height = 'auto'
+  chatInput.style.height = Math.min(chatInput.scrollHeight, 180) + 'px'
+})
+
+// ── Auto-resize chat textarea ─────────────────────────────────────────────────
+chatInput.addEventListener('input', () => {
+  chatInput.style.height = 'auto'
+  chatInput.style.height = Math.min(chatInput.scrollHeight, 180) + 'px'
+})
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+let toastTimer = null
+function showToast(msg) {
+  toastEl.textContent = msg
+  toastEl.classList.add('show')
+  clearTimeout(toastTimer)
+  toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2600)
+}
+</script>
+</body>
+</html>

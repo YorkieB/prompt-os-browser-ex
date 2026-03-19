@@ -1,4 +1,4 @@
-# Prompt OS - Professional Prompt Management System
+# Nexus - Professional Prompt Management System
 
 A comprehensive web-based prompt library and enhancement system that helps users create, organize, enhance, and manage prompts for AI interactions across coding, image generation, video creation, research, planning, and agent development.
 

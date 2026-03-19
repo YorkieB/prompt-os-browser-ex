@@ -2,7 +2,7 @@
 
 ## ✅ Status: FULLY AI-INTEGRATED AND READY
 
-Your Prompt OS application is now fully integrated with AI capabilities via the Spark SDK.
+Your Nexus application is now fully integrated with AI capabilities via the Spark SDK.
 
 ---
 
@@ -255,4 +255,4 @@ const attributes = await extractImageAttributes(
 
 ## 🎉 Congratulations!
 
-Your Prompt OS is fully AI-integrated and production-ready.
+Your Nexus is fully AI-integrated and production-ready.

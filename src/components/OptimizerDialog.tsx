@@ -14,21 +14,27 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Separator } from '@/components/ui/separator'
 import { Card } from '@/components/ui/card'
-import { 
-  ChartBar, 
-  Copy, 
-  Lightbulb, 
-  CheckCircle, 
-  Warning,
-  ArrowsClockwise 
-} from '@phosphor-icons/react'
+import {
+  BarChart3,
+  Copy,
+  Lightbulb,
+  CheckCircle,
+  AlertTriangle,
+  RefreshCw,
+} from 'lucide-react'
 import { toast } from 'sonner'
 
+function scoreBadgeVariant(score: number): 'default' | 'secondary' | 'destructive' {
+  if (score >= 70) return 'default'
+  if (score >= 50) return 'secondary'
+  return 'destructive'
+}
+
 interface OptimizerDialogProps {
-  prompt: Prompt | null
-  open: boolean
-  onClose: () => void
-  onApplyOptimization?: (optimizedPrompt: string) => void
+  readonly prompt: Prompt | null
+  readonly open: boolean
+  readonly onClose: () => void
+  readonly onApplyOptimization?: (optimizedPrompt: string) => void
 }
 
 export function OptimizerDialog({ prompt, open, onClose, onApplyOptimization }: OptimizerDialogProps) {
@@ -81,7 +87,7 @@ export function OptimizerDialog({ prompt, open, onClose, onApplyOptimization }: 
           <span className={`text-lg font-bold ${getScoreColor(dimension.score)}`}>
             {dimension.score}
           </span>
-          <Badge variant={dimension.score >= 70 ? 'default' : dimension.score >= 50 ? 'secondary' : 'destructive'}>
+          <Badge variant={scoreBadgeVariant(dimension.score)}>
             {getScoreLabel(dimension.score)}
           </Badge>
         </div>
@@ -91,12 +97,12 @@ export function OptimizerDialog({ prompt, open, onClose, onApplyOptimization }: 
       {dimension.issues.length > 0 && (
         <div className="mb-3">
           <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground mb-2">
-            <Warning className="w-4 h-4" />
+            <AlertTriangle className="w-4 h-4" />
             Issues Found
           </div>
           <ul className="space-y-1">
-            {dimension.issues.map((issue, idx) => (
-              <li key={idx} className="text-sm text-muted-foreground flex items-start gap-2">
+            {dimension.issues.map((issue) => (
+              <li key={issue} className="text-sm text-muted-foreground flex items-start gap-2">
                 <span className="text-destructive mt-1">•</span>
                 <span>{issue}</span>
               </li>
@@ -112,8 +118,8 @@ export function OptimizerDialog({ prompt, open, onClose, onApplyOptimization }: 
             Suggestions
           </div>
           <ul className="space-y-1">
-            {dimension.suggestions.map((suggestion, idx) => (
-              <li key={idx} className="text-sm text-muted-foreground flex items-start gap-2">
+            {dimension.suggestions.map((suggestion) => (
+              <li key={suggestion} className="text-sm text-muted-foreground flex items-start gap-2">
                 <span className="text-accent mt-1">•</span>
                 <span>{suggestion}</span>
               </li>
@@ -126,10 +132,10 @@ export function OptimizerDialog({ prompt, open, onClose, onApplyOptimization }: 
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl max-h-[90vh]">
+      <DialogContent aria-describedby={undefined} className="max-w-6xl max-h-[90vh]">
         <DialogHeader>
           <DialogTitle className="text-2xl flex items-center gap-2">
-            <ChartBar className="w-6 h-6" />
+            <BarChart3 className="w-6 h-6" />
             Prompt Optimizer
           </DialogTitle>
           <DialogDescription>
@@ -139,7 +145,7 @@ export function OptimizerDialog({ prompt, open, onClose, onApplyOptimization }: 
 
         <div className="space-y-6">
           <div>
-            <label className="text-sm font-medium mb-2 block">Original Prompt</label>
+            <p className="text-sm font-medium mb-2">Original Prompt</p>
             <div className="p-4 bg-muted rounded-md">
               <p className="text-xs text-muted-foreground italic mb-2">{prompt?.role}</p>
               <p className="text-sm font-mono">{prompt?.content}</p>
@@ -153,7 +159,7 @@ export function OptimizerDialog({ prompt, open, onClose, onApplyOptimization }: 
               className="w-full" 
               size="lg"
             >
-              <ArrowsClockwise className={`w-5 h-5 ${isAnalyzing ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`w-5 h-5 ${isAnalyzing ? 'animate-spin' : ''}`} />
               {isAnalyzing ? 'Analyzing Prompt...' : 'Analyze Prompt'}
             </Button>
           )}
@@ -175,7 +181,7 @@ export function OptimizerDialog({ prompt, open, onClose, onApplyOptimization }: 
                       </div>
                       <Badge 
                         className="mt-2"
-                        variant={analysis.overallScore >= 70 ? 'default' : analysis.overallScore >= 50 ? 'secondary' : 'destructive'}
+                        variant={scoreBadgeVariant(analysis.overallScore)}
                       >
                         {getScoreLabel(analysis.overallScore)}
                       </Badge>
@@ -185,7 +191,7 @@ export function OptimizerDialog({ prompt, open, onClose, onApplyOptimization }: 
 
                 <div>
                   <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                    <ChartBar className="w-5 h-5" />
+                    <BarChart3 className="w-5 h-5" />
                     Detailed Analysis
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -205,9 +211,9 @@ export function OptimizerDialog({ prompt, open, onClose, onApplyOptimization }: 
                     </h3>
                     <Card className="p-4">
                       <ol className="space-y-3">
-                        {analysis.improvements.map((improvement, idx) => (
-                          <li key={idx} className="flex items-start gap-3">
-                            <Badge className="shrink-0 mt-0.5">{idx + 1}</Badge>
+                        {analysis.improvements.map((improvement, i) => (
+                          <li key={improvement} className="flex items-start gap-3">
+                            <Badge className="shrink-0 mt-0.5">{i + 1}</Badge>
                             <span className="text-sm">{improvement}</span>
                           </li>
                         ))}
@@ -221,7 +227,7 @@ export function OptimizerDialog({ prompt, open, onClose, onApplyOptimization }: 
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="text-lg font-semibold flex items-center gap-2">
-                      <Lightbulb className="w-5 h-5" weight="fill" />
+                      <Lightbulb className="w-5 h-5" />
                       Optimized Version
                     </h3>
                     <div className="flex gap-2">
@@ -246,7 +252,7 @@ export function OptimizerDialog({ prompt, open, onClose, onApplyOptimization }: 
 
                 <div className="flex gap-3 pt-4">
                   <Button onClick={handleAnalyze} variant="outline" className="flex-1">
-                    <ArrowsClockwise className="w-4 h-4" />
+                    <RefreshCw className="w-4 h-4" />
                     Re-analyze
                   </Button>
                   <Button onClick={onClose} variant="secondary" className="flex-1">

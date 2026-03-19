@@ -1,0 +1,1 @@
+{ "id": "code-review", "title": "Code Review", "icon": "🔎", "category": "coding", "tags": ["review", "quality", "refactor"], "variables": ["language", "focus_areas"], "content": "Review the following {{language}} code. Focus on: {{focus_areas}}. Identify bugs, security vulnerabilities, performance issues, and suggest improvements with examples.", "version": 1 }

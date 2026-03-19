@@ -4,7 +4,7 @@ import XIcon from "lucide-react/dist/esm/icons/x"
 
 import { cn } from "@/lib/utils"
 
-function Sheet({ ...props }: ComponentProps<typeof SheetPrimitive.Root>) {
+function Sheet({ ...props }: Readonly<ComponentProps<typeof SheetPrimitive.Root>>) {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />
 }
 
@@ -22,7 +22,7 @@ function SheetClose({
 
 function SheetPortal({
   ...props
-}: ComponentProps<typeof SheetPrimitive.Portal>) {
+}: Readonly<ComponentProps<typeof SheetPrimitive.Portal>>) {
   return <SheetPrimitive.Portal data-slot="sheet-portal" {...props} />
 }
 

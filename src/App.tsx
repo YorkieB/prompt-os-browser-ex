@@ -34,6 +34,7 @@ function App() {
   const [customPrompts, setCustomPrompts] = useStorage<Prompt[]>('custom-prompts', [])
   const [favorites, setFavorites] = useStorage<string[]>('favorites', [])
   const [trashedIds, setTrashedIds] = useStorage<string[]>('trashed-prompt-ids', [])
+  const [deletedIds, setDeletedIds] = useStorage<string[]>('permanently-deleted-ids', [])
   const [enhancePrompt, setEnhancePrompt] = useState<Prompt | null>(null)
   const [optimizePrompt, setOptimizePrompt] = useState<Prompt | null>(null)
   const [editorPrompt, setEditorPrompt] = useState<Prompt | null>(null)
@@ -42,17 +43,19 @@ function App() {
 
   const allPrompts = useMemo(() => {
     const trashed = trashedIds || []
+    const deleted = deletedIds || []
     const combined = [...defaultPrompts, ...(customPrompts || [])]
     return combined
-      .filter((p) => !trashed.includes(p.id))
+      .filter((p) => !trashed.includes(p.id) && !deleted.includes(p.id))
       .map((p) => ({ ...p, isFavorite: (favorites || []).includes(p.id) }))
-  }, [customPrompts, favorites, trashedIds])
+  }, [customPrompts, favorites, trashedIds, deletedIds])
 
   const trashedPrompts = useMemo(() => {
     const trashed = trashedIds || []
+    const deleted = deletedIds || []
     const combined = [...defaultPrompts, ...(customPrompts || [])]
-    return combined.filter((p) => trashed.includes(p.id)).map((p) => ({ ...p, isFavorite: false }))
-  }, [customPrompts, trashedIds])
+    return combined.filter((p) => trashed.includes(p.id) && !deleted.includes(p.id)).map((p) => ({ ...p, isFavorite: false }))
+  }, [customPrompts, trashedIds, deletedIds])
 
   const handleAddCustom = (text: string) => {
     const prompt: Prompt = {
@@ -85,13 +88,21 @@ function App() {
   }
 
   const handlePermanentDelete = (id: string) => {
-    setCustomPrompts((cur) => (cur || []).filter((p) => p.id !== id))
+    const isCustom = (customPrompts || []).some((p) => p.id === id)
+    if (isCustom) {
+      setCustomPrompts((cur) => (cur || []).filter((p) => p.id !== id))
+    } else {
+      setDeletedIds((cur) => [...(cur || []), id])
+    }
     setTrashedIds((cur) => (cur || []).filter((t) => t !== id))
   }
 
   const handleEmptyTrash = () => {
     const trashed = trashedIds || []
+    const customIds = new Set((customPrompts || []).map((p) => p.id))
+    const defaultTrashed = trashed.filter((id) => !customIds.has(id))
     setCustomPrompts((cur) => (cur || []).filter((p) => !trashed.includes(p.id)))
+    setDeletedIds((cur) => [...(cur || []), ...defaultTrashed])
     setTrashedIds([])
   }
 

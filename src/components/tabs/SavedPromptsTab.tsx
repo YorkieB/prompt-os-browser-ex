@@ -128,14 +128,12 @@ export function SavedPromptsTab({
                   >
                     <RotateCcw className="w-3 h-3" /> Restore
                   </button>
-                  {p.isCustom && (
-                    <button
-                      onClick={() => { onPermanentDelete(p.id); toast.success('Permanently deleted') }}
-                      className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white border border-slate-200 text-slate-400 text-xs font-semibold rounded-lg hover:border-red-300 hover:text-red-500 hover:bg-red-50 transition-colors ml-auto"
-                    >
-                      <X className="w-3 h-3" /> Delete forever
-                    </button>
-                  )}
+                  <button
+                    onClick={() => { onPermanentDelete(p.id); toast.success('Permanently deleted') }}
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white border border-slate-200 text-slate-400 text-xs font-semibold rounded-lg hover:border-red-300 hover:text-red-500 hover:bg-red-50 transition-colors ml-auto"
+                  >
+                    <X className="w-3 h-3" /> Delete forever
+                  </button>
                 </div>
               </div>
             ))

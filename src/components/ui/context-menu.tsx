@@ -2,7 +2,7 @@
 
 import { ComponentProps } from "react"
 import * as ContextMenuPrimitive from "@radix-ui/react-context-menu"
-import CheckIcon from "lucide-react/dist/esm/icons/check";
+import CheckIcon from "lucide-react/dist/esm/icons/check"
 import ChevronRightIcon from "lucide-react/dist/esm/icons/chevron-right"
 import CircleIcon from "lucide-react/dist/esm/icons/circle"
 
@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils"
 
 function ContextMenu({
   ...props
-}: ComponentProps<typeof ContextMenuPrimitive.Root>) {
+}: Readonly<ComponentProps<typeof ContextMenuPrimitive.Root>>) {
   return <ContextMenuPrimitive.Root data-slot="context-menu" {...props} />
 }
 
@@ -32,7 +32,7 @@ function ContextMenuGroup({
 
 function ContextMenuPortal({
   ...props
-}: ComponentProps<typeof ContextMenuPrimitive.Portal>) {
+}: Readonly<ComponentProps<typeof ContextMenuPrimitive.Portal>>) {
   return (
     <ContextMenuPrimitive.Portal data-slot="context-menu-portal" {...props} />
   )
@@ -40,7 +40,7 @@ function ContextMenuPortal({
 
 function ContextMenuSub({
   ...props
-}: ComponentProps<typeof ContextMenuPrimitive.Sub>) {
+}: Readonly<ComponentProps<typeof ContextMenuPrimitive.Sub>>) {
   return <ContextMenuPrimitive.Sub data-slot="context-menu-sub" {...props} />
 }
 
@@ -237,18 +237,18 @@ function ContextMenuShortcut({
 
 export {
   ContextMenu,
-  ContextMenuTrigger,
-  ContextMenuContent,
-  ContextMenuItem,
   ContextMenuCheckboxItem,
-  ContextMenuRadioItem,
+  ContextMenuContent,
+  ContextMenuGroup,
+  ContextMenuItem,
   ContextMenuLabel,
+  ContextMenuPortal,
+  ContextMenuRadioGroup,
+  ContextMenuRadioItem,
   ContextMenuSeparator,
   ContextMenuShortcut,
-  ContextMenuGroup,
-  ContextMenuPortal,
   ContextMenuSub,
   ContextMenuSubContent,
   ContextMenuSubTrigger,
-  ContextMenuRadioGroup,
+  ContextMenuTrigger,
 }

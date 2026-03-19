@@ -43,6 +43,11 @@ import {
 import { Label } from '@/components/ui/label'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 
+/** Skills shown A→Z by label in the dropdown (canonical order stays in `planningPrompts`). */
+const PLANNING_SKILLS_SORTED = [...PLANNING_SKILLS].sort((a, b) =>
+  a.label.localeCompare(b.label, undefined, { sensitivity: 'base' })
+)
+
 const STORAGE_KEY = 'prompt-os-planning-library'
 
 export interface SavedPlanEntry {
@@ -422,14 +427,14 @@ export function PlanningSuiteTab() {
         </p>
 
         {composerOpen && (
-          <Card className="border-slate-200 shadow-sm mb-3">
+          <Card className="border-slate-200 shadow-sm mb-3 min-w-0">
             <CardHeader className="py-3 px-4">
               <CardTitle className="text-sm flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-violet-500" />
                 Generate plan
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3 px-4 pb-4">
+            <CardContent className="space-y-3 px-4 pb-4 min-w-0 overflow-x-hidden">
               <div>
                 <Label htmlFor="plan-goal" className="text-xs text-slate-600">
                   Goal / outcome
@@ -456,15 +461,22 @@ export function PlanningSuiteTab() {
                   className="mt-1 text-sm resize-none"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div>
+              <div className="grid grid-cols-2 gap-2 min-w-0 mb-3 [grid-template-columns:minmax(0,1fr)_minmax(0,1fr)]">
+                <div className="min-w-0">
                   <Label className="text-xs text-slate-600">Planning skill</Label>
                   <Select value={skillId} onValueChange={(v) => setSkillId(v as PlanningSkillId)}>
-                    <SelectTrigger className="mt-1 h-9 text-xs">
+                    <SelectTrigger className="mt-1 h-9 text-xs !w-full min-w-0 overflow-hidden">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
-                      {PLANNING_SKILLS.map((s) => (
+                    <SelectContent
+                      position="popper"
+                      side="top"
+                      align="start"
+                      sideOffset={6}
+                      collisionPadding={16}
+                      className="max-h-52"
+                    >
+                      {PLANNING_SKILLS_SORTED.map((s) => (
                         <SelectItem key={s.id} value={s.id} className="text-xs">
                           {s.label}
                         </SelectItem>
@@ -472,21 +484,28 @@ export function PlanningSuiteTab() {
                     </SelectContent>
                   </Select>
                 </div>
-                <div>
+                <div className="min-w-0">
                   <Label className="text-xs text-slate-600">Granularity</Label>
                   <Select
                     value={granularity}
                     onValueChange={(v) => setGranularity(v as PlanningGranularity)}
                   >
-                    <SelectTrigger className="mt-1 h-9 text-xs">
+                    <SelectTrigger className="mt-1 h-9 text-xs !w-full min-w-0 overflow-hidden">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="standard" className="text-xs">
-                        Standard (2–6 subtasks / task)
-                      </SelectItem>
+                    <SelectContent
+                      position="popper"
+                      side="top"
+                      align="start"
+                      sideOffset={6}
+                      collisionPadding={16}
+                      className="max-h-52"
+                    >
                       <SelectItem value="micro" className="text-xs">
                         Micro-manage (5–25 min steps)
+                      </SelectItem>
+                      <SelectItem value="standard" className="text-xs">
+                        Standard (2–6 subtasks / task)
                       </SelectItem>
                     </SelectContent>
                   </Select>

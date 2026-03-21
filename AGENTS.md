@@ -33,3 +33,34 @@ This document guides GitHub Copilot's **agent mode** (autonomous actions) to beh
 - In case of ambiguous requirements, the agent should make a conservative assumption or leave a note for a human to clarify later, rather than implement something potentially wrong.
 
 By following these guidelines, Copilot's agent will act as a careful collaborator that respects project conventions and safety. It will enhance productivity by handling routine tasks, while leaving anything uncertain or risky to human oversight.
+
+## Cursor Cloud specific instructions
+
+### Project overview
+
+Nexus is a Chrome Extension (Manifest V3, side panel) for AI-powered prompt engineering, research, planning, and chat export. It is a single-product repo (not a monorepo). There is no backend or database — the extension is entirely client-side.
+
+### Key commands
+
+| Task | Command |
+|------|---------|
+| Install deps | `npm install` |
+| Lint | `npm run lint` |
+| Test | `npm run test` |
+| Build extension | `npm run build` (outputs to `dist/`) |
+| Dev server (UI only) | `npm run dev` (serves at `http://localhost:5173`) |
+| Mock Cursor bridge | `npm run bridge:mock` (port 17373, optional) |
+
+### Dev server notes
+
+- `npm run dev` starts Vite on port **5173** (not 5000 — the `kill` script references port 5000 but Vite defaults to 5173).
+- The dev server renders the side panel UI standalone in the browser. Chrome extension APIs (`chrome.storage`, `chrome.runtime`, etc.) are unavailable outside extension context, so some features (export, diagnostics, content script) will not fully function in dev mode.
+- To test the full extension, run `npm run build` and load `dist/` as an unpacked extension in Chrome.
+
+### Environment variables
+
+- The only optional env var is `VITE_PROMPT_OS_CURSOR_BRIDGE_URL` (see `.env.example`). It is only needed for the "Send to Cursor" flow. No secrets are required for general development.
+
+### Testing
+
+- Vitest runs unit tests under `src/**/*.test.ts`. Tests are fast (~200ms) and do not require network or browser context.
